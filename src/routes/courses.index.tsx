@@ -10,7 +10,7 @@ const coursesQO = queryOptions({
   queryFn: () => listPublishedCourses(),
 });
 
-export const Route = createFileRoute("/courses")({
+export const Route = createFileRoute("/courses/")({
   head: () => ({
     meta: [
       { title: "সব কোর্স — শিখো" },
