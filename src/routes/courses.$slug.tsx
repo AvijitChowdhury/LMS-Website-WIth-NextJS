@@ -11,6 +11,7 @@ import {
 import { getCourseBySlug } from "@/lib/courses.functions";
 import { bn } from "@/lib/i18n/bn";
 import { formatBDT, formatBnNumber, formatBnDate } from "@/lib/format";
+import fallbackThumb from "@/assets/course-thumbnail-fallback.jpg";
 
 const qo = (slug: string) =>
   queryOptions({
