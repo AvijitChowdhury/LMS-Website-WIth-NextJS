@@ -430,11 +430,23 @@ export const adminListReviews = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("reviews")
-      .select("id, rating, comment, is_hidden, created_at, courses(title), profiles!reviews_user_id_fkey(name, email)")
+      .select("id, user_id, rating, comment, is_hidden, created_at, courses(title)")
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
-    return data ?? [];
+    const rows = data ?? [];
+    const userIds = Array.from(new Set(rows.map((r: any) => r.user_id).filter(Boolean))) as string[];
+    let profilesById: Record<string, { name: string | null; email: string | null }> = {};
+    if (userIds.length) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles")
+        .select("id, name, email")
+        .in("id", userIds);
+      profilesById = Object.fromEntries(
+        (profs ?? []).map((p: any) => [p.id, { name: p.name, email: p.email }]),
+      );
+    }
+    return rows.map((r: any) => ({ ...r, profiles: profilesById[r.user_id] ?? null }));
   });
 
 export const adminToggleReview = createServerFn({ method: "POST" })
@@ -447,6 +459,7 @@ export const adminToggleReview = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const isCurrentUserAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
