@@ -118,8 +118,8 @@ function CouponsAdmin() {
       code: c.code,
       type: c.discount_type,
       value: String(c.discount_value),
-      startsAt: isoToLocalInput(c.starts_at),
-      endsAt: isoToLocalInput(c.ends_at),
+      startsAt: isoToDateInput(c.starts_at),
+      endsAt: isoToDateInput(c.ends_at),
       maxUses: c.max_uses ? String(c.max_uses) : "",
       active: !!c.active,
     });
