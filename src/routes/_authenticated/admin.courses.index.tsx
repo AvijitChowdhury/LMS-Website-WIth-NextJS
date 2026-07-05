@@ -132,6 +132,38 @@ function AdminCourses() {
     });
   }
 
+  async function handleThumbUpload(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("শুধু ইমেজ ফাইল আপলোড করুন");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("ফাইলের সর্বোচ্চ সাইজ ৫MB");
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("course-thumbnails")
+        .upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: signed, error: sErr } = await supabase.storage
+        .from("course-thumbnails")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (sErr || !signed?.signedUrl) throw sErr ?? new Error("URL তৈরি ব্যর্থ");
+      setForm((f: any) => ({ ...f, thumbnail_url: signed.signedUrl }));
+      toast.success("থাম্বনেইল আপলোড হয়েছে");
+    } catch (e: any) {
+      toast.error(e?.message ?? "আপলোড ব্যর্থ");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+
 
   const parsed = useMemo(() => {
     const candidate = {
