@@ -21,11 +21,47 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from fixtures import SCREENSHOTS, make_browser, restore_supabase_session  # noqa: E402
-from tests import test_admin, test_dashboard, test_public  # noqa: E402
+from tests import (  # noqa: E402
+    test_a11y,
+    test_admin,
+    test_auth_flow,
+    test_dashboard,
+    test_i18n,
+    test_navigation,
+    test_performance,
+    test_public,
+    test_responsive,
+    test_seo,
+)
 
-ALL_TESTS = test_public.TESTS + test_dashboard.TESTS + test_admin.TESTS
+ALL_TESTS = (
+    test_public.TESTS
+    + test_dashboard.TESTS
+    + test_admin.TESTS
+    + test_seo.TESTS
+    + test_navigation.TESTS
+    + test_a11y.TESTS
+    + test_performance.TESTS
+    + test_i18n.TESTS
+    + test_auth_flow.TESTS
+    + test_responsive.TESTS
+)
 
 ALLURE_DIR = Path(__file__).parent / "allure-results"
+
+# Human-readable epic/severity mapping per suite.
+SUITE_META: dict[str, dict[str, str]] = {
+    "public": {"epic": "Public Site", "feature": "Marketing & Catalog", "severity": "critical"},
+    "dashboard": {"epic": "Student Dashboard", "feature": "Learning Surface", "severity": "critical"},
+    "admin": {"epic": "Admin Console", "feature": "Content & Ops", "severity": "blocker"},
+    "seo": {"epic": "Public Site", "feature": "SEO & Metadata", "severity": "normal"},
+    "nav": {"epic": "Public Site", "feature": "Routing & Navigation", "severity": "normal"},
+    "a11y": {"epic": "Quality", "feature": "Accessibility", "severity": "normal"},
+    "perf": {"epic": "Quality", "feature": "Performance", "severity": "minor"},
+    "i18n": {"epic": "Public Site", "feature": "Localization (bn-BD)", "severity": "normal"},
+    "auth": {"epic": "Authentication", "feature": "Session & Redirects", "severity": "critical"},
+    "responsive": {"epic": "Quality", "feature": "Responsive Layout", "severity": "minor"},
+}
 
 
 def _reset_allure_dir() -> None:
@@ -66,11 +102,14 @@ def _write_allure_result(
             {"name": f"{name} screenshot", "source": att_name, "type": "image/png"}
         )
 
+    meta = SUITE_META.get(suite, {"epic": "Other", "feature": suite, "severity": "normal"})
+    story = name.split(".", 1)[-1]
     result = {
         "uuid": result_uuid,
         "historyId": name,
         "name": name,
         "fullName": f"tests.e2e.{name}",
+        "description": detail or f"Playwright E2E for {name}",
         "status": "passed" if passed else "failed",
         "statusDetails": {} if passed else {"message": detail, "trace": trace},
         "stage": "finished",
@@ -78,6 +117,12 @@ def _write_allure_result(
         "stop": stop_ms,
         "labels": [
             {"name": "suite", "value": suite},
+            {"name": "parentSuite", "value": meta["epic"]},
+            {"name": "subSuite", "value": meta["feature"]},
+            {"name": "epic", "value": meta["epic"]},
+            {"name": "feature", "value": meta["feature"]},
+            {"name": "story", "value": story},
+            {"name": "severity", "value": meta["severity"]},
             {"name": "framework", "value": "playwright-python"},
             {"name": "language", "value": "python"},
             {"name": "host", "value": "sandbox"},
@@ -86,6 +131,35 @@ def _write_allure_result(
     }
     with (ALLURE_DIR / f"{result_uuid}-result.json").open("w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
+
+
+def _write_categories() -> None:
+    """Custom defect categories for the Allure 'Categories' widget."""
+    categories = [
+        {"name": "Auth / session failures", "matchedStatuses": ["failed"],
+         "messageRegex": ".*(/auth|Unauthorized|session|token).*"},
+        {"name": "Missing UI selectors", "matchedStatuses": ["failed"],
+         "messageRegex": ".*(Timeout|not visible|selector|wait_for).*"},
+        {"name": "Assertion failures", "matchedStatuses": ["failed"],
+         "messageRegex": ".*AssertionError.*"},
+        {"name": "Network / 5xx", "matchedStatuses": ["failed", "broken"],
+         "messageRegex": ".*(5\\d\\d|ECONN|fetch).*"},
+    ]
+    (ALLURE_DIR / "categories.json").write_text(
+        json.dumps(categories, indent=2), encoding="utf-8"
+    )
+
+
+def _write_executor() -> None:
+    executor = {
+        "name": "Local Sandbox",
+        "type": "shell",
+        "buildName": f"E2E run {time.strftime('%Y-%m-%d %H:%M:%S')}",
+        "reportName": "Shikho LMS — Playwright E2E",
+    }
+    (ALLURE_DIR / "executor.json").write_text(
+        json.dumps(executor, indent=2), encoding="utf-8"
+    )
 
 
 def _write_environment_properties(status: str) -> None:
@@ -126,6 +200,8 @@ async def main() -> int:
         print(f"[auth] {status}\n")
         if not args.no_allure:
             _write_environment_properties(status)
+            _write_categories()
+            _write_executor()
 
         for name, fn in selected:
             start_ms = int(time.time() * 1000)
