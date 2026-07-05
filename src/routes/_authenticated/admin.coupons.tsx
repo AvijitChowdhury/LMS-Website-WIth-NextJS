@@ -156,8 +156,8 @@ function CouponsAdmin() {
       code: form.code.trim(),
       discount_type: form.type,
       discount_value: Number(form.value),
-      starts_at: localInputToIso(form.startsAt),
-      ends_at: localInputToIso(form.endsAt),
+      starts_at: dateInputToIso(form.startsAt, false),
+      ends_at: dateInputToIso(form.endsAt, true),
       max_uses: form.maxUses ? Number(form.maxUses) : null,
       active: form.active,
     });
