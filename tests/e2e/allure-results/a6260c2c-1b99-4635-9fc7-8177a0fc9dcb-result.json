@@ -1,0 +1,36 @@
+{
+  "uuid": "a6260c2c-1b99-4635-9fc7-8177a0fc9dcb",
+  "historyId": "public.landing",
+  "name": "public.landing",
+  "fullName": "tests.e2e.public.landing",
+  "status": "passed",
+  "statusDetails": {},
+  "stage": "finished",
+  "start": 1783276961070,
+  "stop": 1783276964213,
+  "labels": [
+    {
+      "name": "suite",
+      "value": "public"
+    },
+    {
+      "name": "framework",
+      "value": "playwright-python"
+    },
+    {
+      "name": "language",
+      "value": "python"
+    },
+    {
+      "name": "host",
+      "value": "sandbox"
+    }
+  ],
+  "attachments": [
+    {
+      "name": "public.landing screenshot",
+      "source": "5748dc06-fec1-45f9-95cb-aaaacb619f68-attachment.png",
+      "type": "image/png"
+    }
+  ]
+}

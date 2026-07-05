@@ -1,0 +1,39 @@
+{
+  "uuid": "52d01d7f-b630-479a-b0ef-4eb218fab75f",
+  "historyId": "dashboard.support",
+  "name": "dashboard.support",
+  "fullName": "tests.e2e.dashboard.support",
+  "status": "failed",
+  "statusDetails": {
+    "message": "AssertionError: ",
+    "trace": "Traceback (most recent call last):\n  File \"/dev-server/tests/e2e/run.py\", line 134, in main\n    detail = await fn(ctx.page) or \"\"\n             ^^^^^^^^^^^^^^^^^^\n  File \"/dev-server/tests/e2e/tests/test_dashboard.py\", line 19, in support_forum\n    assert \"/auth\" not in page.url\n           ^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+  },
+  "stage": "finished",
+  "start": 1783276973329,
+  "stop": 1783276974278,
+  "labels": [
+    {
+      "name": "suite",
+      "value": "dashboard"
+    },
+    {
+      "name": "framework",
+      "value": "playwright-python"
+    },
+    {
+      "name": "language",
+      "value": "python"
+    },
+    {
+      "name": "host",
+      "value": "sandbox"
+    }
+  ],
+  "attachments": [
+    {
+      "name": "dashboard.support screenshot",
+      "source": "11747204-3c3b-4a45-a2e9-7dcb7197b12f-attachment.png",
+      "type": "image/png"
+    }
+  ]
+}

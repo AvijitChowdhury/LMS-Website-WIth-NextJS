@@ -1,0 +1,39 @@
+{
+  "uuid": "bf308571-cfdf-44bf-ad88-59b46914b1f4",
+  "historyId": "admin.instructors_page",
+  "name": "admin.instructors_page",
+  "fullName": "tests.e2e.admin.instructors_page",
+  "status": "failed",
+  "statusDetails": {
+    "message": "AssertionError: instructors heading missing",
+    "trace": "Traceback (most recent call last):\n  File \"/dev-server/tests/e2e/run.py\", line 134, in main\n    detail = await fn(ctx.page) or \"\"\n             ^^^^^^^^^^^^^^^^^^\n  File \"/dev-server/tests/e2e/tests/test_admin.py\", line 129, in admin_instructors_page\n    await page.get_by_text(\"ইন্সট্রাক্টর\", exact=False).count() > 0\nAssertionError: instructors heading missing\n"
+  },
+  "stage": "finished",
+  "start": 1783277059635,
+  "stop": 1783277060759,
+  "labels": [
+    {
+      "name": "suite",
+      "value": "admin"
+    },
+    {
+      "name": "framework",
+      "value": "playwright-python"
+    },
+    {
+      "name": "language",
+      "value": "python"
+    },
+    {
+      "name": "host",
+      "value": "sandbox"
+    }
+  ],
+  "attachments": [
+    {
+      "name": "admin.instructors_page screenshot",
+      "source": "167990c5-54dc-4263-8978-56617fd73523-attachment.png",
+      "type": "image/png"
+    }
+  ]
+}

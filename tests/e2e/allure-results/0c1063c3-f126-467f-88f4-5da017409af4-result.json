@@ -1,0 +1,30 @@
+{
+  "uuid": "0c1063c3-f126-467f-88f4-5da017409af4",
+  "historyId": "admin.orders_join",
+  "name": "admin.orders_join",
+  "fullName": "tests.e2e.admin.orders_join",
+  "status": "passed",
+  "statusDetails": {},
+  "stage": "finished",
+  "start": 1783276976605,
+  "stop": 1783276977627,
+  "labels": [
+    {
+      "name": "suite",
+      "value": "admin"
+    },
+    {
+      "name": "framework",
+      "value": "playwright-python"
+    },
+    {
+      "name": "language",
+      "value": "python"
+    },
+    {
+      "name": "host",
+      "value": "sandbox"
+    }
+  ],
+  "attachments": []
+}

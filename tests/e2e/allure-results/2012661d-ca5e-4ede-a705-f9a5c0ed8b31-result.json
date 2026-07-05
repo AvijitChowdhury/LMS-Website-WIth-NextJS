@@ -1,0 +1,33 @@
+{
+  "uuid": "2012661d-ca5e-4ede-a705-f9a5c0ed8b31",
+  "historyId": "dashboard.overview",
+  "name": "dashboard.overview",
+  "fullName": "tests.e2e.dashboard.overview",
+  "status": "failed",
+  "statusDetails": {
+    "message": "AssertionError: unexpected redirect to /auth — session missing?",
+    "trace": "Traceback (most recent call last):\n  File \"/dev-server/tests/e2e/run.py\", line 134, in main\n    detail = await fn(ctx.page) or \"\"\n             ^^^^^^^^^^^^^^^^^^\n  File \"/dev-server/tests/e2e/tests/test_dashboard.py\", line 11, in dashboard\n    assert \"/auth\" not in page.url, \"unexpected redirect to /auth — session missing?\"\n           ^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: unexpected redirect to /auth — session missing?\n"
+  },
+  "stage": "finished",
+  "start": 1783276972358,
+  "stop": 1783276973324,
+  "labels": [
+    {
+      "name": "suite",
+      "value": "dashboard"
+    },
+    {
+      "name": "framework",
+      "value": "playwright-python"
+    },
+    {
+      "name": "language",
+      "value": "python"
+    },
+    {
+      "name": "host",
+      "value": "sandbox"
+    }
+  ],
+  "attachments": []
+}
