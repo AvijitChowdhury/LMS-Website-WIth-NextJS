@@ -333,20 +333,16 @@ function CourseDetail() {
           </div>
 
           {/* WHAT YOU'LL LEARN */}
-          {course.what_you_learn && (
+          {course.what_you_learn && course.what_you_learn.length > 0 && (
             <div className="rounded-2xl border border-border bg-card p-6">
               <h2 className="text-2xl font-semibold">কী শিখবেন</h2>
               <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                {course.what_you_learn
-                  .split("\n")
-                  .map((s: string) => s.trim())
-                  .filter(Boolean)
-                  .map((item: string, i: number) => (
-                    <li key={i} className="flex gap-2 text-sm text-muted-foreground">
-                      <span className="mt-0.5 text-brand">✓</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
+                {course.what_you_learn.map((item: string, i: number) => (
+                  <li key={i} className="flex gap-2 text-sm text-muted-foreground">
+                    <span className="mt-0.5 text-brand">✓</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           )}
