@@ -131,6 +131,13 @@ function Header() {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+  const checkAdmin = useServerFn(isCurrentUserAdmin);
+  const { data: adminInfo } = useQuery({
+    queryKey: ["is-admin"],
+    queryFn: () => checkAdmin(),
+    enabled: signedIn,
+  });
+  const isAdmin = !!adminInfo?.admin;
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-ink/80 backdrop-blur-md">
       <div className="container-page flex h-16 items-center justify-between">
@@ -141,20 +148,35 @@ function Header() {
           <span className="font-display text-lg font-extrabold text-terminal">{bn.brand}</span>
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm font-body text-terminal/80">
-          <Link to="/" className="hover:text-lime transition-colors">{bn.nav.home}</Link>
-          <Link to="/courses" className="hover:text-lime transition-colors">{bn.nav.courses}</Link>
-          {signedIn && (
-            <Link to="/dashboard" className="hover:text-lime transition-colors">{bn.nav.dashboard}</Link>
+          {isAdmin ? (
+            <Link to="/admin" className="hover:text-lime transition-colors">অ্যাডমিন ড্যাশবোর্ড</Link>
+          ) : (
+            <>
+              <Link to="/" className="hover:text-lime transition-colors">{bn.nav.home}</Link>
+              <Link to="/courses" className="hover:text-lime transition-colors">{bn.nav.courses}</Link>
+              {signedIn && (
+                <Link to="/dashboard" className="hover:text-lime transition-colors">{bn.nav.dashboard}</Link>
+              )}
+            </>
           )}
         </nav>
         <div className="flex items-center gap-2">
           {signedIn ? (
-            <Link
-              to="/dashboard"
-              className="rounded-md bg-lime px-4 py-2 text-sm font-mono font-bold text-ink hover:brightness-95"
-            >
-              {bn.nav.dashboard}
-            </Link>
+            isAdmin ? (
+              <Link
+                to="/admin"
+                className="rounded-md bg-lime px-4 py-2 text-sm font-mono font-bold text-ink hover:brightness-95"
+              >
+                অ্যাডমিন ড্যাশবোর্ড
+              </Link>
+            ) : (
+              <Link
+                to="/dashboard"
+                className="rounded-md bg-lime px-4 py-2 text-sm font-mono font-bold text-ink hover:brightness-95"
+              >
+                {bn.nav.dashboard}
+              </Link>
+            )
           ) : (
             <Link
               to="/auth"
@@ -168,6 +190,7 @@ function Header() {
     </header>
   );
 }
+
 
 function Footer() {
   return (
