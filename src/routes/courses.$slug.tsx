@@ -255,8 +255,14 @@ function CourseDetail() {
                 className="aspect-video w-full object-cover"
                 loading="lazy"
               />
-              {freePreview && (
-                <button className="absolute inset-0 grid place-items-center bg-black/30 text-white transition hover:bg-black/40">
+              {freePreview && freePreview.content_url && (
+                <button
+                  onClick={() =>
+                    setPreview({ title: freePreview.title, url: freePreview.content_url! })
+                  }
+                  aria-label="ফ্রি প্রিভিউ দেখুন"
+                  className="absolute inset-0 grid place-items-center bg-black/30 text-white transition hover:bg-black/40"
+                >
                   <span className="grid h-14 w-14 place-items-center rounded-full bg-white/95 text-brand shadow-lg">
                     <Play className="h-6 w-6 fill-current" />
                   </span>
