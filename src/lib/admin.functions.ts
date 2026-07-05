@@ -211,7 +211,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
     }));
   });
 
-
+export const adminSaveCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
