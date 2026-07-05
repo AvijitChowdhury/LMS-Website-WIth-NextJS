@@ -305,20 +305,21 @@ function CouponsAdmin() {
                             : `৳${c.discount_value} ছাড়`}
                         </span>
                       </div>
-                      <div className="mt-1.5 grid gap-1 font-mono text-[11px] text-terminal/60 sm:grid-cols-2">
-                        <span className="inline-flex items-center gap-1">
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] text-terminal/70">
+                        <span className="inline-flex items-center gap-1.5">
                           <Calendar className="h-3 w-3 text-lime" />
-                          শুরু: <span className="text-terminal/80">{fmtDate(c.starts_at)}</span>
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-amber-400" />
-                          শেষ: <span className="text-terminal/80">{fmtDate(c.ends_at)}</span>
+                          <span className="text-terminal/60">মেয়াদ:</span>
+                          <span className="text-terminal">{validityLine(c)}</span>
                         </span>
                         <span>
-                          ব্যবহার: {c.used_count ?? 0}
-                          {c.max_uses ? ` / ${c.max_uses}` : " (আনলিমিটেড)"}
+                          <span className="text-terminal/60">ব্যবহার:</span>{" "}
+                          <span className="text-terminal">
+                            {c.used_count ?? 0}
+                            {c.max_uses ? ` / ${c.max_uses}` : " (আনলিমিটেড)"}
+                          </span>
                         </span>
                       </div>
+
                     </div>
                     <div className="flex shrink-0 gap-1.5">
                       <button
