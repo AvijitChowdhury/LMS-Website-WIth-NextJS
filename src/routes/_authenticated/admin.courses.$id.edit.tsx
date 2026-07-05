@@ -346,7 +346,11 @@ function SortableLesson({
         opacity: isDragging ? 0.4 : 1,
       }}
       className={`rounded-md border p-3 space-y-2 ${
-        missingVideo ? "border-amber-400/50 bg-amber-500/5" : "border-border bg-ink"
+        videoInvalid
+          ? "border-red-400/50 bg-red-500/5"
+          : missingVideo
+            ? "border-amber-400/50 bg-amber-500/5"
+            : "border-border bg-ink"
       }`}
     >
       <div className="flex items-center gap-2">
