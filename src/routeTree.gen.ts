@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as CheckoutErrorRouteImport } from './routes/checkout.error'
 import { Route as CheckoutCancelledRouteImport } from './routes/checkout.cancelled'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -69,6 +70,11 @@ const CoursesSlugRoute = CoursesSlugRouteImport.update({
 const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   id: '/checkout/return',
   path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutErrorRoute = CheckoutErrorRouteImport.update({
+  id: '/checkout/error',
+  path: '/checkout/error',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutCancelledRoute = CheckoutCancelledRouteImport.update({
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/checkout/cancelled': typeof CheckoutCancelledRoute
+  '/checkout/error': typeof CheckoutErrorRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/courses/': typeof CoursesIndexRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/free-class': typeof FreeClassRoute
   '/checkout/cancelled': typeof CheckoutCancelledRoute
+  '/checkout/error': typeof CheckoutErrorRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/courses': typeof CoursesIndexRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/checkout/cancelled': typeof CheckoutCancelledRoute
+  '/checkout/error': typeof CheckoutErrorRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/courses/': typeof CoursesIndexRoute
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/checkout/cancelled'
+    | '/checkout/error'
     | '/checkout/return'
     | '/courses/$slug'
     | '/courses/'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/free-class'
     | '/checkout/cancelled'
+    | '/checkout/error'
     | '/checkout/return'
     | '/courses/$slug'
     | '/courses'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/checkout/cancelled'
+    | '/checkout/error'
     | '/checkout/return'
     | '/courses/$slug'
     | '/courses/'
@@ -297,6 +309,7 @@ export interface RootRouteChildren {
   CoursesRoute: typeof CoursesRouteWithChildren
   FreeClassRoute: typeof FreeClassRoute
   CheckoutCancelledRoute: typeof CheckoutCancelledRoute
+  CheckoutErrorRoute: typeof CheckoutErrorRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   ApiPublicWebhooksUddoktapayRoute: typeof ApiPublicWebhooksUddoktapayRoute
 }
@@ -357,6 +370,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout/return'
       fullPath: '/checkout/return'
       preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/error': {
+      id: '/checkout/error'
+      path: '/checkout/error'
+      fullPath: '/checkout/error'
+      preLoaderRoute: typeof CheckoutErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout/cancelled': {
@@ -546,6 +566,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoursesRoute: CoursesRouteWithChildren,
   FreeClassRoute: FreeClassRoute,
   CheckoutCancelledRoute: CheckoutCancelledRoute,
+  CheckoutErrorRoute: CheckoutErrorRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   ApiPublicWebhooksUddoktapayRoute: ApiPublicWebhooksUddoktapayRoute,
 }
