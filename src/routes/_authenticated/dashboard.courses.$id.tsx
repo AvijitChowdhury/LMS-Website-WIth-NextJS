@@ -13,13 +13,19 @@ import {
   Menu,
   X,
   Search,
+  ListTree,
+  Info,
+  Star,
+  HelpCircle,
 } from "lucide-react";
 import {
   getCoursePlayer,
   markLessonComplete,
   getLessonVideoUrl,
+  submitReview,
 } from "@/lib/learning.functions";
 import { formatBnNumber } from "@/lib/format";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard/courses/$id")({
   head: () => ({
