@@ -245,15 +245,15 @@ function HomePage() {
 
         {/* Marquee */}
         <div className="relative mt-20 md:mt-28 border-t border-border bg-code-gray/60 py-5 overflow-hidden">
-          <div className="marquee-track flex gap-6 whitespace-nowrap font-mono text-xs text-terminal/60">
+          <div className="marquee-track flex gap-8 whitespace-nowrap font-body text-sm text-terminal/80">
             {Array.from({ length: 2 }).map((_, k) => (
-              <div key={k} className="flex gap-6 pr-6">
-                {tags.map(({ label, Icon }) => (
+              <div key={k} className="flex gap-8 pr-8">
+                {tags.map(({ label, Icon, color }) => (
                   <span
                     key={`${k}-${label}`}
-                    className="inline-flex items-center gap-1.5 hover:text-lime transition-colors"
+                    className="inline-flex items-center gap-2 hover:text-lime transition-colors"
                   >
-                    <Icon className="h-3.5 w-3.5" />
+                    <Icon className="h-4 w-4 shrink-0" style={{ color }} />
                     {label}
                   </span>
                 ))}
