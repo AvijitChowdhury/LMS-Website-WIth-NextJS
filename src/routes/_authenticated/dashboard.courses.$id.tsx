@@ -74,6 +74,8 @@ function PlayerPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"all" | "todo" | "done" | "video" | "text">("all");
 
   useEffect(() => {
     if (!activeId && orderedLessons.length) setActiveId(orderedLessons[0].id);
