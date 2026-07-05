@@ -43,35 +43,20 @@ async def restore_supabase_session(context: BrowserContext, page: Page) -> str:
     if email and password:
         try:
             await page.goto(f"{BASE_URL}/auth", wait_until="domcontentloaded")
-            # Try common shapes: input[type=email], input[type=password]
+            await page.wait_for_timeout(600)
             await page.locator("input[type='email']").first.fill(email)
             await page.locator("input[type='password']").first.fill(password)
-            # Submit — either a submit button or press Enter
-            submitted = False
-            for sel in [
-                "button[type='submit']",
-                "button:has-text('Sign in')",
-                "button:has-text('Log in')",
-                "button:has-text('লগ ইন')",
-                "button:has-text('সাইন ইন')",
-                "button:has-text('প্রবেশ')",
-            ]:
-                loc = page.locator(sel).first
-                if await loc.count() > 0:
-                    try:
-                        await loc.click(timeout=3000)
-                        submitted = True
-                        break
-                    except Exception:
-                        continue
-            if not submitted:
-                await page.locator("input[type='password']").first.press("Enter")
-            # Wait for redirect away from /auth
-            try:
-                await page.wait_for_url(lambda u: "/auth" not in u, timeout=10000)
-            except Exception:
-                pass
-            # Verify session persisted
+            submit = page.locator("button[type='submit']").first
+            # Wait for the Supabase token response so we know when the session lands.
+            async with page.expect_response(
+                lambda r: "grant_type=password" in r.url, timeout=15000
+            ) as resp_info:
+                await submit.click()
+            resp = await resp_info.value
+            if resp.status >= 400:
+                return f"login rejected for {email} (HTTP {resp.status})"
+            # Give the client a moment to persist the session and redirect.
+            await page.wait_for_timeout(1500)
             has_session = await page.evaluate(
                 "() => Object.keys(window.localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'))"
             )
@@ -79,7 +64,7 @@ async def restore_supabase_session(context: BrowserContext, page: Page) -> str:
                 return f"signed in via /auth as {email}"
             return f"login attempt failed for {email} (no session in localStorage)"
         except Exception as e:
-            return f"login error: {type(e).__name__}: {str(e)[:120]}"
+            return f"login error: {type(e).__name__}: {str(e)[:160]}"
 
     return "no session vars — running unauthenticated"
 
