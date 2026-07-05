@@ -91,6 +91,7 @@ function AdminCourses() {
     subtitle: "",
     thumbnail_url: "",
     category_id: null,
+    instructor_profile_id: null,
     description: "",
     what_you_learn: "",
     gift_resources: "",
