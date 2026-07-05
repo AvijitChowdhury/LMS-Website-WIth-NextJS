@@ -69,11 +69,17 @@ function AuthPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const parsed = emailSchema.safeParse(email);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "সঠিক ইমেইল দিন");
+      return;
+    }
+    const cleanEmail = parsed.data;
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
+        const { data, error } = await supabase.auth.signUp({
+          email: cleanEmail,
           password,
           options: {
             data: { name },
@@ -81,10 +87,17 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success(bn.auth.signupSuccess);
-        navigate({ to: "/dashboard" });
+        // With email confirmation ON, no session is returned until verified
+        if (!data.session) {
+          toast.success("ভেরিফিকেশন লিংক পাঠানো হয়েছে — ইমেইল চেক করুন");
+          setMode("login");
+          setPassword("");
+        } else {
+          toast.success(bn.auth.signupSuccess);
+          navigate({ to: "/dashboard" });
+        }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
         if (error) throw error;
         toast.success(bn.auth.loginSuccess);
         navigate({ to: "/dashboard" });
