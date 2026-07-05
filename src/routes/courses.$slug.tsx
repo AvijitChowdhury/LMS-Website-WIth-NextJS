@@ -312,9 +312,14 @@ function CourseDetail() {
                 >
                   {bn.courses.buy}
                 </Link>
-                {freePreview && (
-                  <button className="mt-2 block w-full rounded-lg border border-border px-4 py-2.5 text-center text-sm font-medium hover:bg-accent">
-                    {bn.courses.watchPreview}
+                {freePreview && freePreview.content_url && (
+                  <button
+                    onClick={() =>
+                      setPreview({ title: freePreview.title, url: freePreview.content_url! })
+                    }
+                    className="mt-2 block w-full rounded-lg border border-border px-4 py-2.5 text-center text-sm font-medium hover:bg-accent"
+                  >
+                    ▶ {bn.courses.watchPreview}
                   </button>
                 )}
               </>
