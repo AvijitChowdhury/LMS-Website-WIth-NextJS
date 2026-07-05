@@ -28,6 +28,11 @@ function AdminCourses() {
     subtitle: "",
     thumbnail_url: "",
     category_id: null,
+    description: "",
+    what_you_learn: "",
+    gift_resources: "",
+    intro_video_url: "",
+    total_duration: "",
   });
 
   const mut = useMutation({
@@ -36,7 +41,11 @@ function AdminCourses() {
       toast.success("সংরক্ষিত");
       qc.invalidateQueries({ queryKey: ["admin-courses"] });
       setOpen(false);
-      setForm({ title: "", slug: "", price: 0, discount_price: null, level: "BEGINNER", is_published: false, subtitle: "", thumbnail_url: "", category_id: null });
+      setForm({
+        title: "", slug: "", price: 0, discount_price: null, level: "BEGINNER",
+        is_published: false, subtitle: "", thumbnail_url: "", category_id: null,
+        description: "", what_you_learn: "", gift_resources: "", intro_video_url: "", total_duration: "",
+      });
     },
     onError: (e: any) => toast.error(e?.message ?? "ব্যর্থ"),
   });
