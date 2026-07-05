@@ -114,6 +114,34 @@ export const deleteCoupon = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// Preview coupon: validates & returns discount for a given amount
+export const previewCoupon = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) =>
+    z.object({ code: z.string().trim().min(1).max(40), amount: z.number().positive() }).parse(raw),
+  )
+  .handler(async ({ context, data }) => {
+    const code = data.code.toUpperCase();
+    const { data: c, error } = await context.supabase
+      .from("coupons")
+      .select("id, code, discount_type, discount_value, starts_at, ends_at, max_uses, used_count, active")
+      .eq("code", code)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!c || !c.active) throw new Error("কুপনটি বৈধ নয়");
+    const now = new Date();
+    if (c.starts_at && new Date(c.starts_at) > now) throw new Error("কুপন এখনো সক্রিয় হয়নি");
+    if (c.ends_at && new Date(c.ends_at) < now) throw new Error("কুপনের মেয়াদ শেষ");
+    if (c.max_uses != null && (c.used_count ?? 0) >= c.max_uses) throw new Error("কুপনের সীমা শেষ");
+    const raw =
+      c.discount_type === "PERCENT"
+        ? (data.amount * Number(c.discount_value)) / 100
+        : Number(c.discount_value);
+    const discount = Math.min(Math.max(0, Math.round(raw * 100) / 100), data.amount);
+    const final = Math.max(0, Math.round((data.amount - discount) * 100) / 100);
+    return { code: c.code, discount, final, type: c.discount_type, value: Number(c.discount_value) };
+  });
+
 // ============ Support forum ============
 export const listMyThreads = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
