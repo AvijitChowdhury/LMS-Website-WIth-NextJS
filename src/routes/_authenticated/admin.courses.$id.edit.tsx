@@ -591,6 +591,7 @@ function CourseDetailsForm({ course, onSaved }: { course: any; onSaved: () => vo
               level: form.level,
               is_published: !!form.is_published,
               category_id: form.category_id || null,
+              instructor_profile_id: form.instructor_profile_id || null,
               description: form.description || undefined,
               what_you_learn: wyl.length ? wyl : null,
               gift_resources: form.gift_resources || null,
