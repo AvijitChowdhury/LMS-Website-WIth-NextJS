@@ -200,6 +200,8 @@ async def main() -> int:
         print(f"[auth] {status}\n")
         if not args.no_allure:
             _write_environment_properties(status)
+            _write_categories()
+            _write_executor()
 
         for name, fn in selected:
             start_ms = int(time.time() * 1000)
