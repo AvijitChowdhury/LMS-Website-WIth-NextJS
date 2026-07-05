@@ -316,12 +316,6 @@ function AdminCourses() {
                     invalid ? "border-red-400/60 focus:border-red-400" : "border-border focus:border-lime"
                   }`}
                 />
-                  value={form[f.key] ?? ""}
-                  onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-                  className={`mt-1 w-full rounded-md border bg-ink px-3 py-2 text-terminal focus:outline-none font-body ${
-                    invalid ? "border-border/70 focus:border-lime" : "border-border focus:border-lime"
-                  }`}
-                />
                 <span className="mt-1 block font-mono text-[11px] text-terminal/50">{f.tip}</span>
               </label>
             );
