@@ -25,6 +25,13 @@ function DashboardPage() {
     queryFn: () => checkAdmin(),
   });
 
+  useEffect(() => {
+    if (adminInfo?.admin) {
+      navigate({ to: "/admin", replace: true });
+    }
+  }, [adminInfo?.admin, navigate]);
+
+
 
   async function handleSignOut() {
     await qc.cancelQueries();
