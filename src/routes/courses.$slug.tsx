@@ -783,6 +783,14 @@ function CourseDetail() {
         </div>
       </div>
       <div className="h-20 lg:hidden" />
+      {preview && (
+        <PreviewModal
+          title={preview.title}
+          url={preview.url}
+          onClose={() => setPreview(null)}
+        />
+      )}
     </>
+
   );
 }
