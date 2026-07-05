@@ -184,6 +184,44 @@ function CouponsAdmin() {
         <h2 className="font-bn-serif text-2xl font-bold text-terminal">কুপন ব্যবস্থাপনা</h2>
       </div>
 
+      <div className="mb-6 rounded-xl border border-border bg-card p-5">
+        <div className="mb-3 flex items-center gap-2 font-mono text-[11px] uppercase tracking-wide text-terminal/60">
+          <BarChart3 className="h-3.5 w-3.5 text-lime" /> কুপন অ্যানালিটিক্স (শুধু PAID অর্ডার)
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-lg border border-border bg-code-gray/40 p-3">
+            <div className="font-mono text-[10px] uppercase tracking-wide text-terminal/60">মোট রিডেম্পশন</div>
+            <div className="mt-1 font-mono text-xl font-bold text-lime">{totals.redeemed}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-code-gray/40 p-3">
+            <div className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wide text-terminal/60">
+              <Wallet className="h-3 w-3" /> প্রভাবিত রেভিনিউ
+            </div>
+            <div className="mt-1 font-mono text-xl font-bold text-terminal">{fmtBdt(totals.revenue)}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-code-gray/40 p-3">
+            <div className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wide text-terminal/60">
+              <Percent className="h-3 w-3" /> মোট ছাড় দেওয়া
+            </div>
+            <div className="mt-1 font-mono text-xl font-bold text-amber-400">{fmtBdt(totals.discount)}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-code-gray/40 p-3">
+            <div className="font-mono text-[10px] uppercase tracking-wide text-terminal/60">
+              অবশিষ্ট ব্যবহার
+            </div>
+            <div className="mt-1 font-mono text-xl font-bold text-terminal">
+              {remainingUses}
+              {hasUnlimited && <span className="ml-1 text-[10px] text-terminal/60">+ ∞</span>}
+            </div>
+            <div className="mt-0.5 font-mono text-[10px] text-terminal/50">
+              {activeCount} টি সক্রিয় কুপন
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
       <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center justify-between">
