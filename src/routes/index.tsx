@@ -272,7 +272,7 @@ function HomePage() {
               </div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
 
         {/* Marquee */}
         <div className="relative mt-4 md:mt-6 border-y border-border bg-code-gray/60 py-0.5 overflow-hidden max-w-5xl mx-auto rounded-md">
