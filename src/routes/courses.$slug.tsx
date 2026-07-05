@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Play, Lock, CheckCircle2, Star, Clock, BookOpen, Globe, Calendar } from "lucide-react";
+import { Play, Lock, CheckCircle2, Star, Clock, BookOpen, Globe, Calendar, Settings } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -9,9 +10,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { getCourseBySlug } from "@/lib/courses.functions";
+import { isCurrentUserAdmin } from "@/lib/admin.functions";
 import { bn } from "@/lib/i18n/bn";
 import { formatBDT, formatBnNumber, formatBnDate } from "@/lib/format";
 import fallbackThumb from "@/assets/course-thumbnail-fallback.jpg";
+
 
 const qo = (slug: string) =>
   queryOptions({
