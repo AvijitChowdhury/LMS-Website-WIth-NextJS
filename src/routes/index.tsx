@@ -166,7 +166,10 @@ function HomePage() {
           aria-hidden
         />
 
-        <div className="relative container-page grid gap-6 py-10 md:py-14 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+        <motion.div
+          style={{ y: heroY, opacity: heroOpacity }}
+          className="relative container-page grid gap-6 py-10 md:py-14 lg:grid-cols-[1.1fr_1fr] lg:items-center"
+        >
           <div>
             <Prompt>$ boot shikho.sh</Prompt>
             <h1 className="mt-3 font-bn-serif text-[2.4rem] md:text-[4rem] font-extrabold leading-[1.05] text-terminal">
