@@ -150,6 +150,9 @@ async def admin_instructor_create(page):
     )
     await page.locator("button:has-text('সংরক্ষণ করুন')").first.click()
     await page.wait_for_timeout(2500)
+    # Force a reload so the freshly created row appears in the list.
+    await page.goto(f"{BASE_URL}/admin/instructors", wait_until="domcontentloaded")
+    await page.wait_for_load_state("networkidle", timeout=10000)
     await shot(page, "19_admin_instructor_created")
     html = await page.content()
     assert name in html or slug in html, f"instructor {name} not visible after create"
