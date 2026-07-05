@@ -102,6 +102,20 @@ function ScrollProgress() {
 function HomePage() {
   const { data } = useSuspenseQuery(coursesQO);
   const featured = data.courses.slice(0, 6);
+
+  // Cinematic: mouse spotlight on hero
+  const heroRef = useRef<HTMLElement>(null);
+  const mx = useMotionValue(50);
+  const my = useMotionValue(50);
+  const spotlight = useMotionTemplate`radial-gradient(600px circle at ${mx}% ${my}%, rgba(200,255,77,0.10), transparent 60%)`;
+
+  // Cinematic: parallax on hero content driven by page scroll
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 600], [0, -80]);
+  const heroOpacity = useTransform(scrollY, [0, 500], [1, 0.35]);
+  const terminalY = useTransform(scrollY, [0, 600], [0, -40]);
+  const terminalRotate = useTransform(scrollY, [0, 600], [0, -2]);
+
   const tags = [
     { label: "পাইথন", Icon: Code2, color: "#3B82F6" },
     { label: "ডিজাইন", Icon: Palette, color: "#EC4899" },
