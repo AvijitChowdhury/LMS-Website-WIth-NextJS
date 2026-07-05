@@ -228,6 +228,7 @@ function AdminCourses() {
               price: Number(form.price),
               discount_price: form.discount_price ? Number(form.discount_price) : null,
               category_id: form.category_id || null,
+              instructor_profile_id: form.instructor_profile_id || null,
               what_you_learn: wyl.length ? wyl : null,
             });
           }}
