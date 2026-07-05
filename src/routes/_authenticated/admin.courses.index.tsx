@@ -2,9 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { adminListCourses, adminSaveCourse, adminListCategories } from "@/lib/admin.functions";
+import { adminListCourses, adminSaveCourse, adminListCategories, adminDeleteCourse } from "@/lib/admin.functions";
 import { fmtBDT } from "@/lib/format";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/admin/courses/")({
   component: AdminCourses,
