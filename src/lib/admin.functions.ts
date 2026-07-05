@@ -196,11 +196,11 @@ export const adminDeleteCourse = createServerFn({ method: "POST" })
       await supabaseAdmin.from("modules").delete().in("id", moduleIds);
     }
 
-    // Wipe related course-scoped records
+    // Wipe related course-scoped records. Orders and support_threads are
+    // left as historical records (no FK enforces referential integrity).
     await supabaseAdmin.from("enrollments").delete().eq("course_id", courseId);
     await supabaseAdmin.from("reviews").delete().eq("course_id", courseId);
-    await supabaseAdmin.from("support_threads").update({ course_id: null }).eq("course_id", courseId);
-    await supabaseAdmin.from("orders").update({ course_id: null }).eq("course_id", courseId);
+
 
     const { error } = await supabaseAdmin.from("courses").delete().eq("id", courseId);
     if (error) throw new Error(error.message);
