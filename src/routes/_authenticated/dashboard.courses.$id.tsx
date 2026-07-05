@@ -160,9 +160,10 @@ function PlayerPage() {
         <div className="container-page flex items-center gap-3 py-3">
           <Link
             to="/dashboard"
-            className="hidden md:inline font-mono text-xs text-terminal/60 hover:text-indigo-soft"
+            className="inline-flex items-center gap-1 rounded-md border border-border bg-navy px-3 py-2 font-mono text-xs text-terminal hover:border-indigo/50 hover:text-indigo-soft transition"
           >
-            ← ড্যাশবোর্ড
+            <ChevronLeft className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">ড্যাশবোর্ড</span>
           </Link>
           <button
             className="lg:hidden rounded-md border border-border bg-navy p-2 text-terminal"
