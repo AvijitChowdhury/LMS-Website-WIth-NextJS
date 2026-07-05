@@ -18,8 +18,14 @@ function CheckoutPage() {
   const { courseId } = Route.useParams();
   const charge = useServerFn(createCourseCharge);
   const preview = useServerFn(previewCoupon);
+  const checkAdmin = useServerFn(isCurrentUserAdmin);
   const navigate = useNavigate();
+  const { data: adminInfo } = useQuery({
+    queryKey: ["is-admin"],
+    queryFn: () => checkAdmin(),
+  });
   const [course, setCourse] = useState<any>(null);
+
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [couponInput, setCouponInput] = useState("");
