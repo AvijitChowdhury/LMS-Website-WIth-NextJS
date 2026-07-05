@@ -31,6 +31,7 @@ import {
   adminBulkImportLessons,
   adminSaveCourse,
   adminListCategories,
+  adminListInstructorOptions,
 } from "@/lib/admin.functions";
 import { toast } from "sonner";
 
