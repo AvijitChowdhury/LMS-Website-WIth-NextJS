@@ -475,7 +475,7 @@ function HomePage() {
             ফ্রি অ্যাকাউন্ট — খুলুন →
           </Magnetic>
         </div>
-      </section>
+      </motion.section>
     </>
   );
 }
