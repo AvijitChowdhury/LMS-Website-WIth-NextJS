@@ -201,6 +201,14 @@ function AdminCourses() {
             >
               এডিট
             </Link>
+            <button
+              onClick={() => confirmDelete(c)}
+              disabled={delMut.isPending}
+              className="rounded-md border border-red-400/40 px-3 py-1 font-mono text-xs text-red-300 hover:border-red-400 hover:bg-red-500/10 disabled:opacity-50"
+            >
+              ডিলিট
+            </button>
+
           </div>
         ))}
       </div>
