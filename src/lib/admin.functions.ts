@@ -169,7 +169,49 @@ export const adminListCourses = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
-export const adminSaveCourse = createServerFn({ method: "POST" })
+export const adminListUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [{ data: profiles, error: pErr }, { data: roles, error: rErr }, { data: enrols, error: eErr }, { data: orders, error: oErr }] =
+      await Promise.all([
+        supabaseAdmin.from("profiles").select("id, email, name, avatar_url, created_at").order("created_at", { ascending: false }).limit(500),
+        supabaseAdmin.from("user_roles").select("user_id, role"),
+        supabaseAdmin.from("enrollments").select("user_id"),
+        supabaseAdmin.from("orders").select("user_id, amount, status"),
+      ]);
+    if (pErr) throw new Error(pErr.message);
+    if (rErr) throw new Error(rErr.message);
+    if (eErr) throw new Error(eErr.message);
+    if (oErr) throw new Error(oErr.message);
+
+    const rolesByUser: Record<string, string[]> = {};
+    for (const r of roles ?? []) {
+      (rolesByUser[r.user_id] ??= []).push(r.role as string);
+    }
+    const enrolByUser: Record<string, number> = {};
+    for (const e of enrols ?? []) enrolByUser[e.user_id] = (enrolByUser[e.user_id] ?? 0) + 1;
+    const spendByUser: Record<string, { paid: number; orders: number; spent: number }> = {};
+    for (const o of orders ?? []) {
+      const s = (spendByUser[o.user_id] ??= { paid: 0, orders: 0, spent: 0 });
+      s.orders += 1;
+      if (o.status === "PAID") {
+        s.paid += 1;
+        s.spent += Number(o.amount ?? 0);
+      }
+    }
+    return (profiles ?? []).map((p) => ({
+      ...p,
+      roles: rolesByUser[p.id] ?? ["STUDENT"],
+      enrollments: enrolByUser[p.id] ?? 0,
+      orders: spendByUser[p.id]?.orders ?? 0,
+      paidOrders: spendByUser[p.id]?.paid ?? 0,
+      totalSpent: spendByUser[p.id]?.spent ?? 0,
+    }));
+  });
+
+
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
