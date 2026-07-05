@@ -94,7 +94,7 @@ def build_pdf() -> None:
     story.append(Paragraph("End-to-End Test Report", h1))
     story.append(
         Paragraph(
-            "শিখো — Bengali LMS Platform · Playwright + Python · Allure-backed",
+            "Bengali LMS Platform &middot; Playwright + Python &middot; Allure-backed",
             small,
         )
     )
