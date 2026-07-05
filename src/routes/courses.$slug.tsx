@@ -1,8 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
-import { Play, Lock, CheckCircle2, Star, Clock, BookOpen, Globe, Calendar, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Play, Lock, CheckCircle2, Star, Clock, BookOpen, Globe, Calendar, Settings, X } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -11,9 +11,68 @@ import {
 } from "@/components/ui/accordion";
 import { getCourseBySlug } from "@/lib/courses.functions";
 import { isCurrentUserAdmin } from "@/lib/admin.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { bn } from "@/lib/i18n/bn";
 import { formatBDT, formatBnNumber, formatBnDate } from "@/lib/format";
 import fallbackThumb from "@/assets/course-thumbnail-fallback.jpg";
+
+function toEmbed(url: string): string {
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/);
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}?autoplay=1&rel=0`;
+  const vim = url.match(/vimeo\.com\/(\d+)/);
+  if (vim) return `https://player.vimeo.com/video/${vim[1]}?autoplay=1`;
+  return url;
+}
+
+function PreviewModal({
+  title,
+  url,
+  onClose,
+}: {
+  title: string;
+  url: string;
+  onClose: () => void;
+}) {
+  const isEmbed = /(youtube\.com|youtu\.be|vimeo\.com)/.test(url);
+  return (
+    <div
+      className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="relative w-full max-w-4xl overflow-hidden rounded-xl border border-border bg-black shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-white/10 bg-black/60 px-4 py-2 text-white">
+          <div className="truncate text-sm font-medium">{title}</div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="rounded-md p-1 text-white/70 hover:bg-white/10 hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="aspect-video w-full bg-black">
+          {isEmbed ? (
+            <iframe
+              src={toEmbed(url)}
+              title={title}
+              className="h-full w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <video src={url} controls autoPlay className="h-full w-full" />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 
 const qo = (slug: string) =>
@@ -64,13 +123,30 @@ export const Route = createFileRoute("/courses/$slug")({
 function CourseDetail() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(qo(slug));
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) setSignedIn(!!data.session);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) =>
+      setSignedIn(!!s),
+    );
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
   const checkAdmin = useServerFn(isCurrentUserAdmin);
   const { data: adminInfo } = useQuery({
     queryKey: ["is-admin"],
     queryFn: () => checkAdmin().catch(() => ({ admin: false })),
     staleTime: 60_000,
+    enabled: signedIn === true,
   });
   const isAdmin = !!adminInfo?.admin;
+  const [preview, setPreview] = useState<{ title: string; url: string } | null>(null);
+
   if (!data) return null;
 
   const {
@@ -179,8 +255,14 @@ function CourseDetail() {
                 className="aspect-video w-full object-cover"
                 loading="lazy"
               />
-              {freePreview && (
-                <button className="absolute inset-0 grid place-items-center bg-black/30 text-white transition hover:bg-black/40">
+              {freePreview && freePreview.content_url && (
+                <button
+                  onClick={() =>
+                    setPreview({ title: freePreview.title, url: freePreview.content_url! })
+                  }
+                  aria-label="ফ্রি প্রিভিউ দেখুন"
+                  className="absolute inset-0 grid place-items-center bg-black/30 text-white transition hover:bg-black/40"
+                >
                   <span className="grid h-14 w-14 place-items-center rounded-full bg-white/95 text-brand shadow-lg">
                     <Play className="h-6 w-6 fill-current" />
                   </span>
@@ -230,9 +312,14 @@ function CourseDetail() {
                 >
                   {bn.courses.buy}
                 </Link>
-                {freePreview && (
-                  <button className="mt-2 block w-full rounded-lg border border-border px-4 py-2.5 text-center text-sm font-medium hover:bg-accent">
-                    {bn.courses.watchPreview}
+                {freePreview && freePreview.content_url && (
+                  <button
+                    onClick={() =>
+                      setPreview({ title: freePreview.title, url: freePreview.content_url! })
+                    }
+                    className="mt-2 block w-full rounded-lg border border-border px-4 py-2.5 text-center text-sm font-medium hover:bg-accent"
+                  >
+                    ▶ {bn.courses.watchPreview}
                   </button>
                 )}
               </>
@@ -326,31 +413,41 @@ function CourseDetail() {
                     </AccordionTrigger>
                     <AccordionContent>
                       <ul className="divide-y divide-border">
-                        {items.map((l) => (
-                          <li
-                            key={l.id}
-                            className="flex items-center justify-between gap-3 py-3 text-sm"
-                          >
-                            <span className="flex min-w-0 items-center gap-3">
-                              {l.is_free_preview ? (
-                                <Play className="h-4 w-4 shrink-0 text-brand" />
-                              ) : (
-                                <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
-                              )}
-                              <span className="truncate">{l.title}</span>
-                              {l.is_free_preview && (
-                                <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
-                                  {bn.courses.freePreview}
-                                </span>
-                              )}
-                            </span>
-                            {l.duration_sec ? (
-                              <span className="shrink-0 text-xs text-muted-foreground">
-                                {fmtDur(l.duration_sec)}
+                        {items.map((l) => {
+                          const playable = l.is_free_preview && !!l.content_url;
+                          return (
+                            <li
+                              key={l.id}
+                              onClick={
+                                playable
+                                  ? () => setPreview({ title: l.title, url: l.content_url! })
+                                  : undefined
+                              }
+                              className={`flex items-center justify-between gap-3 py-3 text-sm ${
+                                playable ? "cursor-pointer hover:text-brand" : ""
+                              }`}
+                            >
+                              <span className="flex min-w-0 items-center gap-3">
+                                {l.is_free_preview ? (
+                                  <Play className="h-4 w-4 shrink-0 text-brand" />
+                                ) : (
+                                  <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                )}
+                                <span className="truncate">{l.title}</span>
+                                {l.is_free_preview && (
+                                  <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs text-accent-foreground">
+                                    {bn.courses.freePreview}
+                                  </span>
+                                )}
                               </span>
-                            ) : null}
-                          </li>
-                        ))}
+                              {l.duration_sec ? (
+                                <span className="shrink-0 text-xs text-muted-foreground">
+                                  {fmtDur(l.duration_sec)}
+                                </span>
+                              ) : null}
+                            </li>
+                          );
+                        })}
                         {items.length === 0 && (
                           <li className="py-3 text-sm text-muted-foreground">
                             পাঠ শীঘ্রই যোগ করা হবে।
@@ -686,6 +783,14 @@ function CourseDetail() {
         </div>
       </div>
       <div className="h-20 lg:hidden" />
+      {preview && (
+        <PreviewModal
+          title={preview.title}
+          url={preview.url}
+          onClose={() => setPreview(null)}
+        />
+      )}
     </>
+
   );
 }
