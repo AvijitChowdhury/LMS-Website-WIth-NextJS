@@ -2,9 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, TicketPercent, Pencil, X, Calendar } from "lucide-react";
+import { Plus, Trash2, TicketPercent, Pencil, X, Calendar, BarChart3, Wallet, Percent } from "lucide-react";
 import { toast } from "sonner";
-import { deleteCoupon, listCoupons, upsertCoupon } from "@/lib/lms-admin.functions";
+import { couponAnalytics, deleteCoupon, listCoupons, upsertCoupon } from "@/lib/lms-admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/coupons")({
   head: () => ({ meta: [{ title: "কুপন — অ্যাডমিন" }, { name: "robots", content: "noindex" }] }),
@@ -100,6 +100,7 @@ const emptyForm: FormState = {
 
 function CouponsAdmin() {
   const list = useServerFn(listCoupons);
+  const analytics = useServerFn(couponAnalytics);
   const upsert = useServerFn(upsertCoupon);
   const del = useServerFn(deleteCoupon);
   const qc = useQueryClient();
@@ -108,6 +109,19 @@ function CouponsAdmin() {
     queryKey: ["admin", "coupons"],
     queryFn: () => list(),
   });
+  const { data: stats } = useQuery({
+    queryKey: ["admin", "coupon-analytics"],
+    queryFn: () => analytics(),
+  });
+  const byCode = stats?.byCode ?? {};
+  const totals = stats?.totals ?? { redeemed: 0, revenue: 0, discount: 0 };
+  const activeCount = coupons.filter((c: any) => c.active).length;
+  const remainingUses = coupons.reduce(
+    (s: number, c: any) => (c.max_uses ? s + Math.max(0, c.max_uses - (c.used_count ?? 0)) : s),
+    0,
+  );
+  const hasUnlimited = coupons.some((c: any) => c.active && c.max_uses == null);
+  const fmtBdt = (n: number) => `৳${n.toLocaleString("bn-BD", { maximumFractionDigits: 0 })}`;
 
   const [form, setForm] = useState<FormState>(emptyForm);
   const editing = !!form.id;
@@ -132,6 +146,7 @@ function CouponsAdmin() {
       toast.success(editing ? "কুপন আপডেট হয়েছে" : "কুপন যোগ হয়েছে");
       reset();
       qc.invalidateQueries({ queryKey: ["admin", "coupons"] });
+      qc.invalidateQueries({ queryKey: ["admin", "coupon-analytics"] });
     },
     onError: (e: any) => toast.error(e?.message ?? "সমস্যা হয়েছে"),
   });
@@ -141,6 +156,7 @@ function CouponsAdmin() {
     onSuccess: () => {
       toast.success("মুছে ফেলা হয়েছে");
       qc.invalidateQueries({ queryKey: ["admin", "coupons"] });
+      qc.invalidateQueries({ queryKey: ["admin", "coupon-analytics"] });
     },
     onError: (e: any) => toast.error(e?.message ?? "মুছে ফেলা যায়নি"),
   });
@@ -169,6 +185,44 @@ function CouponsAdmin() {
         <TicketPercent className="h-6 w-6 text-lime" />
         <h2 className="font-bn-serif text-2xl font-bold text-terminal">কুপন ব্যবস্থাপনা</h2>
       </div>
+
+      <div className="mb-6 rounded-xl border border-border bg-card p-5">
+        <div className="mb-3 flex items-center gap-2 font-mono text-[11px] uppercase tracking-wide text-terminal/60">
+          <BarChart3 className="h-3.5 w-3.5 text-lime" /> কুপন অ্যানালিটিক্স (শুধু PAID অর্ডার)
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-lg border border-border bg-code-gray/40 p-3">
+            <div className="font-mono text-[10px] uppercase tracking-wide text-terminal/60">মোট রিডেম্পশন</div>
+            <div className="mt-1 font-mono text-xl font-bold text-lime">{totals.redeemed}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-code-gray/40 p-3">
+            <div className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wide text-terminal/60">
+              <Wallet className="h-3 w-3" /> প্রভাবিত রেভিনিউ
+            </div>
+            <div className="mt-1 font-mono text-xl font-bold text-terminal">{fmtBdt(totals.revenue)}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-code-gray/40 p-3">
+            <div className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wide text-terminal/60">
+              <Percent className="h-3 w-3" /> মোট ছাড় দেওয়া
+            </div>
+            <div className="mt-1 font-mono text-xl font-bold text-amber-400">{fmtBdt(totals.discount)}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-code-gray/40 p-3">
+            <div className="font-mono text-[10px] uppercase tracking-wide text-terminal/60">
+              অবশিষ্ট ব্যবহার
+            </div>
+            <div className="mt-1 font-mono text-xl font-bold text-terminal">
+              {remainingUses}
+              {hasUnlimited && <span className="ml-1 text-[10px] text-terminal/60">+ ∞</span>}
+            </div>
+            <div className="mt-0.5 font-mono text-[10px] text-terminal/50">
+              {activeCount} টি সক্রিয় কুপন
+            </div>
+          </div>
+        </div>
+      </div>
+
+
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <div className="rounded-xl border border-border bg-card p-5">
@@ -288,6 +342,8 @@ function CouponsAdmin() {
                     : st.tone === "red"
                       ? "text-red-300 border-red-400/40 bg-red-500/10"
                       : "text-terminal/60 border-border bg-code-gray";
+              const a = byCode[c.code?.toUpperCase?.() ?? ""] ?? { redeemed: 0, revenue: 0, discount: 0 };
+              const remaining = c.max_uses != null ? Math.max(0, c.max_uses - (c.used_count ?? 0)) : null;
               return (
                 <li key={c.id} className="px-5 py-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -317,6 +373,25 @@ function CouponsAdmin() {
                             {c.used_count ?? 0}
                             {c.max_uses ? ` / ${c.max_uses}` : " (আনলিমিটেড)"}
                           </span>
+                        </span>
+                        {remaining != null && (
+                          <span>
+                            <span className="text-terminal/60">অবশিষ্ট:</span>{" "}
+                            <span className={remaining === 0 ? "text-red-300" : "text-terminal"}>
+                              {remaining}
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-[10px]">
+                        <span className="rounded border border-lime/30 bg-lime/5 px-1.5 py-0.5 text-lime">
+                          রিডিম: {a.redeemed}
+                        </span>
+                        <span className="rounded border border-border bg-code-gray/50 px-1.5 py-0.5 text-terminal/80">
+                          রেভিনিউ: {fmtBdt(a.revenue)}
+                        </span>
+                        <span className="rounded border border-amber-400/30 bg-amber-400/5 px-1.5 py-0.5 text-amber-400">
+                          ছাড়: {fmtBdt(a.discount)}
                         </span>
                       </div>
 
