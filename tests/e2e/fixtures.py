@@ -59,6 +59,10 @@ async def restore_supabase_session(context: BrowserContext, page: Page) -> str:
         await context.add_cookies(arr)
 
     await page.goto(BASE_URL, wait_until="domcontentloaded")
+    try:
+        await page.wait_for_load_state("networkidle", timeout=5000)
+    except Exception:
+        pass
 
     if key and session:
         await page.evaluate(
@@ -74,11 +78,16 @@ async def restore_supabase_session(context: BrowserContext, page: Page) -> str:
             return f"REST login failed for {email}"
         ref = _project_ref_from_url(SUPABASE_URL)
         storage_key = f"sb-{ref}-auth-token"
+        payload = json.dumps(sess)
         await page.evaluate(
-            f"window.localStorage.setItem({json.dumps(storage_key)}, {json.dumps(json.dumps(sess))})"
+            "([k, v]) => window.localStorage.setItem(k, v)",
+            [storage_key, payload],
         )
         await page.goto(BASE_URL, wait_until="domcontentloaded")
-        await page.wait_for_timeout(800)
+        try:
+            await page.wait_for_load_state("networkidle", timeout=5000)
+        except Exception:
+            pass
         return f"signed in via REST as {email}"
 
     return "no session vars — running unauthenticated"
